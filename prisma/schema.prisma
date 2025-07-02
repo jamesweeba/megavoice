@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model VoiceCampaign {
+  id           String         @id @default(cuid())
+  title        String
+  description  String?
+  status       CampaignStatus @default(PENDING)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  audioFileUrl String
+  recipeint    Json
+  VoiceMessage VoiceMessage[]
+  userId     String? 
+  user      User?   @relation(fields: [userId], references: [id])
+
+  @@index([status])
+  @@index([title])
+  @@index([userId])
+}
+
+enum CampaignStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model VoiceMessage {
+  id           String        @id @default(cuid())
+  phoneNumber  String
+  campaignId   String
+  status       MessageStatus @default(PENDING)
+  audioFileUrl String
+  retries      Int           @default(0)
+  deliveredAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  userId     String? 
+
+
+  campaign VoiceCampaign @relation(fields: [campaignId], references: [id])
+
+  @@index([phoneNumber])
+  @@index([campaignId])
+  @@index([status])
+}
+
+enum MessageStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  RETRYING
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  VoiceCampaign VoiceCampaign[]
+}
