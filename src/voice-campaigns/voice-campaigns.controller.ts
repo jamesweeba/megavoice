@@ -8,6 +8,7 @@ import { plainToInstance } from 'class-transformer';
 import { validate} from 'class-validator';
 import { UtilService } from '../util/util.service';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiTags, ApiParam, ApiQuery, ApiBody, ApiResponse } from '@nestjs/swagger';
 
 
 
@@ -15,6 +16,8 @@ import { AuthGuard } from '@nestjs/passport';
 @Controller('voice-campaigns')
 export class VoiceCampaignsController {
 constructor(private voiceCampaignsService: VoiceCampaignsService,private utilService: UtilService  ) {}
+
+
 @Post('/')
 @UseInterceptors(FileInterceptor('audio'))
    async create( @UploadedFile() file: Express.Multer.File,

@@ -8,10 +8,18 @@ import { VoiceMessagesQueueModule } from './voice-messages-queue/voice-messages-
 import { VoiceModule } from './voice/voice.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import  configuration  from './config/app.config'
 
 @Module({
-  imports: [VoiceCampaignsModule, UtilModule, VoiceMessagesModule, PrismaModule, PublishModule, VoiceMessagesQueueModule, VoiceModule, UserModule, AuthModule],
+  imports: [VoiceCampaignsModule, UtilModule, VoiceMessagesModule, PrismaModule, PublishModule, VoiceMessagesQueueModule, VoiceModule, UserModule, AuthModule,
+       ConfigModule.forRoot({
+      isGlobal: true,             // No need to import in every module
+      load: [configuration],      // Loads from your config file
+    })
+  ],
   controllers: [],
   providers: [],
 })
 export class AppModule {}
+
