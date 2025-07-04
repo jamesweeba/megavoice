@@ -10,6 +10,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import  configuration  from './config/app.config'
+import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [VoiceCampaignsModule, UtilModule, VoiceMessagesModule, PrismaModule, PublishModule, VoiceMessagesQueueModule, VoiceModule, UserModule, AuthModule,
@@ -18,8 +19,9 @@ import  configuration  from './config/app.config'
       load: [configuration],      // Loads from your config file
     })
   ],
-  controllers: [],
+  controllers: [HealthController],
   providers: [],
 })
 export class AppModule {}
+
 
