@@ -3,7 +3,7 @@ export default () => ({
   databaseUrl: process.env.DATABASE_URL,
   jwtSecret: process.env.JWT_SECRET,
   supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ,
-  supabaseUrl: process.env.SUPABASE_URL || 'https://vbcpnjlzpfcqqfdyilzs.supabase.co',
+  supabaseUrl: process.env.SUPABASE_URL ,
 });
 
 

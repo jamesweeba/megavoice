@@ -11,10 +11,17 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     BullModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
+
+        /*
+        REDIS_HOST= "66.96.83.232"||"localhost"
+REDIS_PORT="6379"
+REDIS_PASSWORD="2@cUaKbUMExF3"
+
+        */
         redis: {
-          host: configService.get<string>('REDIS_HOST') || 'localhost',
+          host:configService.get<string>('REDIS_HOST'),
           port: configService.get<number>('REDIS_PORT') || 6379,
-          password: configService.get<string>('REDIS_PASSWORD') || undefined,
+          password: configService.get<string>('REDIS_PASSWORD') || undefined, // Use undefined if no password is set
         },
       }),
       inject: [ConfigService],
