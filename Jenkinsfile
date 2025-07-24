@@ -4,7 +4,7 @@ pipeline {
    }
     environment {
 	DOCKERHUB_CRED = credentials('DOCKERHUB_CRED')
-        SERVICE = "megavoice"
+        SERVICE = "megavoice-api"
         REG_AML_CRED = credentials('REG_AML_CRED')
         registry_URL = "reg-aml.esoko.com"
         TAG_NAME = sh(returnStdout: true, script: "git tag --points-at=HEAD")
@@ -14,7 +14,7 @@ pipeline {
         TAG = "alpha"
         // Retrieve the credentials by ID
         USER_CREDENTIALS = credentials('dev-swarm-manager-user-password')
-        STACK = "dfs"
+        STACK = "megavoice"
         commitMessage = ""
 
     }
@@ -85,7 +85,6 @@ pipeline {
             when {
                 tag "v*"
             }
-
             steps {
                 sh "docker tag ${env.imageName}:${env.imageTag} ${env.imageName}:${env.TAG_NAME}"
                 // sh "docker login --username ${DOCKERHUB_CRED_USR} --password '${DOCKERHUB_CRED_PSW}'"
