@@ -26,8 +26,10 @@ services:
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls.certresolver=myresolver"
       - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.routers.traefik.middlewares=auth"
-      - "traefik.http.middlewares.auth.basicauth.users=admin:$apr1$VClJ2z09$TnUxv2xoX3DUqdbUEIvoZ/"
+      # - "traefik.http.routers.traefik.middlewares=auth"
+      # - "traefik.http.middlewares.auth.basicauth.users=admin:$apr1$VClJ2z09$TnUxv2xoX3DUqdbUEIvoZ/"
+      - "traefik.http.routers.traefik.middlewares=whitelist"
+      - "traefik.http.middlewares.whitelist.ipwhitelist.sourcerange=203.0.113.42/32"
 
   watchtower:
     image: containrrr/watchtower
