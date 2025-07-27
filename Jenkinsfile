@@ -33,25 +33,29 @@ pipeline {
 		    sh "docker build -t ${env.IMAGE}:${env.TAG} ." 
 		    // sh "docker login --username ${DOCKERHUB_CRED_USR} --password '${DOCKERHUB_CRED_PSW}'"
 		    sh "echo '${REG_AML_CRED_PSW}' | docker login -u ${REG_AML_CRED_USR} --password-stdin ${registry_URL}"
-             //sh "docker login registry.esoko.com -u admin -p Harbor12345"
-		     //sh "docker tag ${IMAGE}:${TAG} dtr.esoko.com:5000/${env.IMAGE}:${env.TAG}"
 		     sh "docker push ${env.IMAGE}:${env.TAG}"
              sh "docker system prune -f"
             }
         }
 
         stage("build - prod") {
+            // when {
+            //    tag "v*"
+            // }
             when {
-               tag "v*"
-            }
+                anyOf { branch 'master'; branch 'main' }
+              }
             steps {
                 sh "docker build -f Dockerfile.prod -t ${env.imageName}:${env.imageTag} ."
             }
         }
         stage("release") {
+            // when {
+            //     tag "v*"
+            // }
             when {
-                tag "v*"
-            }
+                anyOf { branch 'master'; branch 'main' }
+              }
             steps {
                 sh "docker tag ${env.imageName}:${env.imageTag} ${env.imageName}:${env.TAG_NAME}"
                 // sh "docker login --username ${DOCKERHUB_CRED_USR} --password '${DOCKERHUB_CRED_PSW}'"
