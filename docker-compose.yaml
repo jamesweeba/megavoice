@@ -1,0 +1,79 @@
+services:
+  reverse-proxy:
+    image: traefik:v3.1
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=sadatbunmohammed@outlook.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--accesslog=true"
+      - "--api.dashboard=true"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+
+
+  watchtower:
+    image: containrrr/watchtower
+    command:
+      - "--label-enable"
+      - "--interval"
+      - "30"
+      - "--rolling-restart"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres-password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    secrets:
+      - postgres-password
+
+  redis:
+    image: redis:7
+    restart: always
+    volumes:
+      - redis-data:/data
+
+  megervoice-api:
+    image: reg-aml.esoko.com/deveops-test.img/megavoice-api:prod
+    restart: always
+    environment:
+      DATABASE_URL: postgres://postgres:H0r6C0rpA$w0rd@db:5432/postgres?sslmode=disable
+      REDIS_URL: redis://redis:6379
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.megervoice-api.rule=Host('megavoice.elicitlabs.link')"
+      - "traefik.http.routers.megervoice-api.entrypoints=websecure"
+      - "traefik.http.routers.megervoice-api.tls.certresolver=myresolver"
+      - "com.centurylinklabs.watchtower.enable=true"
+    depends_on:
+      - db
+      - redis
+
+
+secrets:
+  postgres-password:
+    file: ./db/postgres-password.txt
+
+volumes:
+  postgres-data:
+  redis-data:
+  letsencrypt:
+
+
+# echo "H0r6C0rpA$w0rd" > ./db/postgres-password.txt
+# touch ./letsencrypt/acme.json
+# chmod 600 ./letsencrypt/acme.json
