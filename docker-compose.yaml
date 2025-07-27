@@ -13,13 +13,21 @@ services:
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--accesslog=true"
       - "--api.dashboard=true"
+      - "--api=true"  # Needed to enable internal 'api@internal' service
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - letsencrypt:/letsencrypt
-
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`mega-traefik.elicitlabs.link`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=myresolver"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=admin:$apr1$VClJ2z09$TnUxv2xoX3DUqdbUEIvoZ/"
 
   watchtower:
     image: containrrr/watchtower
@@ -55,7 +63,7 @@ services:
       REDIS_URL: redis://redis:6379
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.megervoice-api.rule=Host('megavoice.elicitlabs.link')"
+      - "traefik.http.routers.megervoice-api.rule=Host(`megavoice.elicitlabs.link`)"
       - "traefik.http.routers.megervoice-api.entrypoints=websecure"
       - "traefik.http.routers.megervoice-api.tls.certresolver=myresolver"
       - "com.centurylinklabs.watchtower.enable=true"
