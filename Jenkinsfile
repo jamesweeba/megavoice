@@ -42,7 +42,7 @@ pipeline {
 
         stage("build - prod") {
             when {
-               tag "v*"
+               tag "v*; branch 'main'"
             }
             steps {
                 sh "docker build -f Dockerfile.prod -t ${env.imageName}:${env.imageTag} ."
