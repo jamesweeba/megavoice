@@ -26,7 +26,7 @@ pipeline {
     stages {
         stage("Build DockerFile and Tag to Dtr" ) {
             when {
-                anyOf { branch 'develop'; branch 'Sprint*'; branch 'Hotfix*'; branch 'Hotfix/*'; branch 'hotfix*'; branch 'master'; branch 'feature/*' }
+                anyOf { branch 'develop'; branch 'Sprint*'; branch 'Hotfix*'; branch 'Hotfix/*'; branch 'hotfix*'; branch 'master'; branch 'main'; branch 'feature/*' }
               }
             steps { 
 		    sh "docker login --username ${DOCKERHUB_CRED_USR} --password '${DOCKERHUB_CRED_PSW}'"
@@ -42,7 +42,7 @@ pipeline {
 
         stage("build - prod") {
             when {
-               tag "v*; branch 'main'"
+               tag "v*"
             }
             steps {
                 sh "docker build -f Dockerfile.prod -t ${env.imageName}:${env.imageTag} ."
