@@ -84,6 +84,3 @@ volumes:
   letsencrypt:
 
 
-# echo "H0r6C0rpA$w0rd" > ./db/postgres-password.txt
-# touch ./letsencrypt/acme.json
-# chmod 600 ./letsencrypt/acme.json
