@@ -54,21 +54,33 @@ services:
   redis:
     image: redis:7
     restart: always
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     volumes:
       - redis-data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    secrets:
+      - redis-password
+
 
   megervoice-api:
     image: reg-aml.esoko.com/deveops-test.img/megavoice-api:prod
     restart: always
     environment:
-      DATABASE_URL: postgres://postgres:H0r6C0rpA$w0rd@db:5432/postgres?sslmode=disable
-      REDIS_URL: redis://redis:6379
+      DATABASE_URL: "postgres://postgres:<password>@db:5432/megavoicedb?schema=public"
+      SUPABASE_SERVICE_ROLE_KEY: ""
+      SUPABASE_URL: ""
+      JWT_SECRET: "a4"
+      REDIS_HOST: "localhost"
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD_FILE: /run/secrets/redis-password
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.megervoice-api.rule=Host(`megavoice.elicitlabs.link`)"
       - "traefik.http.routers.megervoice-api.entrypoints=websecure"
       - "traefik.http.routers.megervoice-api.tls.certresolver=myresolver"
       - "com.centurylinklabs.watchtower.enable=true"
+    secrets:
+      - redis-password
     depends_on:
       - db
       - redis
@@ -77,6 +89,8 @@ services:
 secrets:
   postgres-password:
     file: ./db/postgres-password.txt
+  redis-password:
+    file: ./redis/redis-password.txt
 
 volumes:
   postgres-data:
