@@ -56,7 +56,7 @@ services:
       - "6339:6379"
     restart: always
     volumes:
-      - redis_data:/data
+      - redis-data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
