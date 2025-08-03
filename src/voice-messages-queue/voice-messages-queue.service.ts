@@ -5,10 +5,13 @@ import { Queue } from 'bull';
 
 @Injectable()
 export class VoiceMessagesQueueService {
-constructor(@InjectQueue('voice-message') private queue: Queue) {}
+  constructor(@InjectQueue('voice-message') private queue: Queue) { }
 
   async enqueueMessage(data: any) {
-    await this.queue.add('process', data); // `process` is the job name
+    await this.queue.add('process', data, {
+      removeOnComplete: true,
+      removeOnFail: true,
+    }); // `process` is the job name
   }
 
 }

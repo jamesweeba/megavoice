@@ -14,9 +14,9 @@ import { ApiTags, ApiParam, ApiQuery, ApiBody, ApiResponse } from '@nestjs/swagg
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('voice-campaigns')
+
 export class VoiceCampaignsController {
 constructor(private voiceCampaignsService: VoiceCampaignsService,private utilService: UtilService  ) {}
-
 
 @Post('/')
 @UseInterceptors(FileInterceptor('audio'))
