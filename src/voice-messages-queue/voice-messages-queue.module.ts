@@ -10,9 +10,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         redis: {
-          host:configService.get<string>('REDIS_HOST'),
-          port: configService.get<number>('REDIS_PORT') || 6379,
-          password: configService.get<string>('REDIS_PASSWORD') || undefined, // Use undefined if no password is set
+          host: "44.198.162.244",
+          port: 6339,
+          password: "H0r6C0rpA3w0RED1S"
         },
       }),
       inject: [ConfigService],

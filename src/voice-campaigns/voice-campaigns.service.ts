@@ -12,7 +12,7 @@ export class VoiceCampaignsService {
    async  create(dto: VoiceCampaignDto) {
     let{audio,recipient:recipeint,title,userId}=dto
 
-    console.log(dto);
+    // console.log(dto);
     console.log("ppppppppppppppppppppppppppppppppppppppppppppp")
     let audioFileUrl=  await this.utilService.uploadAudio(audio)
     //createFileName(audio);

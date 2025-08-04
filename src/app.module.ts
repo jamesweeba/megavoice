@@ -11,13 +11,15 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import  configuration  from './config/app.config'
 import { HealthController } from './health/health.controller';
+import { WalletModule } from './wallet/wallet.module';
 
 @Module({
   imports: [VoiceCampaignsModule, UtilModule, VoiceMessagesModule, PrismaModule, PublishModule, VoiceMessagesQueueModule, VoiceModule, UserModule, AuthModule,
        ConfigModule.forRoot({
       isGlobal: true,             // No need to import in every module
       load: [configuration],      // Loads from your config file
-    })
+    }),
+       WalletModule
   ],
   controllers: [HealthController],
   providers: [],

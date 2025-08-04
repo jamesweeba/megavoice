@@ -8,10 +8,8 @@ export class VoiceMessagesQueueService {
   constructor(@InjectQueue('voice-message') private queue: Queue) { }
 
   async enqueueMessage(data: any) {
-    await this.queue.add('process', data, {
-      removeOnComplete: true,
-      removeOnFail: true,
-    }); // `process` is the job name
+    console.log('Enqueuing message:', data);
+    await this.queue.add('process', data); // `process` is the job name
   }
 
 }

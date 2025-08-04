@@ -9,7 +9,6 @@ generator client {
   output   = "../generated/prisma"
 }
 
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -25,8 +24,8 @@ model VoiceCampaign {
   audioFileUrl String
   recipeint    Json
   VoiceMessage VoiceMessage[]
-  userId     String? 
-  user      User?   @relation(fields: [userId], references: [id])
+  userId       String?
+  user         User?          @relation(fields: [userId], references: [id])
 
   @@index([status])
   @@index([title])
@@ -51,8 +50,7 @@ model VoiceMessage {
   deliveredAt  DateTime?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  userId     String? 
-
+  userId       String?
 
   campaign VoiceCampaign @relation(fields: [campaignId], references: [id])
 
@@ -74,8 +72,25 @@ model User {
   email     String   @unique
   name      String?
   password  String
+  balance   Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   VoiceCampaign VoiceCampaign[]
+  Transaction   Transaction[]
+}
+
+model Transaction {
+  id        String          @id @default(uuid())
+  user      User            @relation(fields: [userId], references: [id])
+  userId    String
+  type      TransactionType
+  amount    Int
+  reason    String?
+  createdAt DateTime        @default(now())
+}
+
+enum TransactionType {
+  credit
+  debit
 }
