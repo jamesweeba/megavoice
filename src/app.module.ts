@@ -12,14 +12,17 @@ import { ConfigModule } from '@nestjs/config';
 import  configuration  from './config/app.config'
 import { HealthController } from './health/health.controller';
 import { WalletModule } from './wallet/wallet.module';
+import { InfobipModule } from './infobip/infobip.module';
 
 @Module({
   imports: [VoiceCampaignsModule, UtilModule, VoiceMessagesModule, PrismaModule, PublishModule, VoiceMessagesQueueModule, VoiceModule, UserModule, AuthModule,
        ConfigModule.forRoot({
-      isGlobal: true,             // No need to import in every module
+      isGlobal: true, 
+      envFilePath: '.env',  // ✅ This line is missing            // No need to import in every module
       load: [configuration],      // Loads from your config file
     }),
-       WalletModule
+       WalletModule,
+       InfobipModule
   ],
   controllers: [HealthController],
   providers: [],
