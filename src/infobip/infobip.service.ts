@@ -6,7 +6,9 @@ export class InfobipService {
 
     constructor(private prismaservice: PrismaService) { }
     async handleVoiceCallStatus(body: any) {
+        console.log('Received voice call status:',  JSON.stringify(body));
         let { results } = body || [];
+
         for (const result of results) {
             const id = result.callbackData;
             const status = result.status?.name || 'UNKNOWN';
