@@ -26,7 +26,10 @@ export enum CustomMessageStatus {
   Cancelled = 'CANCELLED',
   Completed = 'COMPLETED',
   Failed = 'FAILED',
-  Running='RUNNING'
+  Running='RUNNING',
+  Delivered = 'DELIVERED',
+  NotDelivered = 'NOT_DELIVERED',
+  Unknown = 'UNKNOWN',
 }
 
 

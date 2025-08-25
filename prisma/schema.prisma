@@ -66,6 +66,7 @@ enum MessageStatus {
   DELIVERED
   FAILED
   RETRYING
+  REJECTED
 }
 
 model User {
