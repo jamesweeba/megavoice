@@ -38,7 +38,15 @@ async function bootstrap() {
     .setTitle('Megavoice API')
     .setDescription('API documentation for Megavoice')
     .setVersion('1.0')
-    .addBearerAuth() // Optional: adds Authorization header
+    .addBearerAuth( {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'jwt') // Optional: adds Authorization header
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

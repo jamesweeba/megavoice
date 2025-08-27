@@ -9,7 +9,8 @@ import {
   IsEnum,
   IsNumberString
 } from 'class-validator';
-import{Transform} from 'class-transformer'
+import { Transform } from 'class-transformer'
+import { ApiProperty,ApiPropertyOptional,ApiParam } from '@nestjs/swagger';
 
 @ValidatorConstraint({ name: 'isValidAudioFile', async: false })
 export class IsValidAudioFileConstraint implements ValidatorConstraintInterface {
@@ -53,17 +54,29 @@ export enum CustomCampaignStatus {
   Cancelled = 'CANCELLED',
   Completed = 'COMPLETED',
   Failed = 'FAILED',
-  Running='RUNNING'
+  Running = 'RUNNING'
 }
 
 export class VoiceCampaignDto {
+  @ApiProperty({ example: "title", description: "title of the voice campaingn" })
   @IsString()
   @IsNotEmpty()
   title: string;
 
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',   // tells Swagger it's a file upload
+    description: 'Audio file to upload',
+  })
   @Validate(IsValidAudioFileConstraint, { message: 'Invalid audio file' })
   audio: Express.Multer.File;
 
+
+  @ApiProperty({
+    type: String,
+    description: 'Comma-separated list of recipient phone numbers',
+    example: '233551234567,233501234567,233441234567',
+  })
   @IsNotEmpty({ message: 'Recipient list is required' })
   @Validate(ValidatorConstraint)
   @Transform(({ value }) => {
@@ -86,6 +99,8 @@ export class VoiceCampaignDto {
   @Validate(IsValidRecipientListConstraint)
   recipient: number[];
 
+
+
   @IsNotEmpty()
   @IsString()
   userId: string;
@@ -97,24 +112,28 @@ export class FindAllVoiceCampaignDto {
   @IsNotEmpty()
   userId: string;
 
+  @ApiPropertyOptional({ example: "PENDING", description: "status value for filtering" })
   @IsOptional()
   @Transform(({ value }) => value?.toUpperCase())
   @IsEnum(CustomCampaignStatus, { message: 'Invalid status value' })
   status?: CustomCampaignStatus;
 
+  @ApiPropertyOptional({ example: "title", description: "title value for filtering" })
   @IsOptional()
   @IsString()
   title?: string;
 
+  @ApiPropertyOptional({ example: "2020-01-01", description: "date value for filtering" })
   @IsOptional()
   @IsString()
   createdAt?: string; // You can use Date if needed
 
-
+  @ApiPropertyOptional({ example: "1", description: "page number value for filtering" })
   @IsOptional()
   @IsNumberString()
   page?: string;
 
+  @ApiPropertyOptional({ example: "10", description: "limit number value for filtering" })
   @IsOptional()
   @IsNumberString()
   limit?: string;
@@ -122,10 +141,12 @@ export class FindAllVoiceCampaignDto {
 
 
 export class FindOneVoiceCampaignDto {
+  // @ApiProperty({example: 'a3f5b1d2-6f77-4f29-82b7-6a6b4f9d1234',description:"" })  
   @IsString()
   @IsNotEmpty()
   id: string;
 
+  
   @IsString()
   @IsNotEmpty()
   userId: string;

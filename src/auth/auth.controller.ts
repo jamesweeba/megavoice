@@ -1,21 +1,25 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto,AuthLoginDto } from './dto/auth.dto';
+import { AuthDto, AuthLoginDto } from './dto/auth.dto';
+import { ApiTags} from '@nestjs/swagger';
 
+
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-    constructor(private authService:AuthService){}
+    constructor(private authService: AuthService) { }
     @Post('/login')
-    async login(@Body() dto:AuthLoginDto){
-        let data=await this.authService.login(dto);
-                return data
+    // @ApiResponse({ status: 201, description: 'Cat created successfully.' })
+    async login(@Body() dto: AuthLoginDto) {
+        let data = await this.authService.login(dto);
+        return data
 
     }
 
     @Post('/signup')
-    async  signup(@Body() dto:AuthDto){
-        let data=await this.authService.signup(dto);
+    async signup(@Body() dto: AuthDto) {
+        let data = await this.authService.signup(dto);
         return data
 
-     }
+    }
 }
