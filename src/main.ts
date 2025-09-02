@@ -29,6 +29,11 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.enableCors({
+    origin: ['http://localhost:4200', 'https://medicaton-reminder-1qfw.vercel.app'], // allowed origins
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, // allow cookies/auth headers
+  });
 
   // Enable validation globally
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
@@ -55,4 +60,9 @@ async function bootstrap() {
   await app.listen(3000);
 }
 bootstrap();
+
+
+
+// main.ts
+
 
