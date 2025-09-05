@@ -78,10 +78,14 @@ export class FindMessagesDto {
   title?: string
 
   @ApiPropertyOptional({ description: 'Page number', example: '1' })
-  page?: string;
+  @IsOptional()
+  @IsString()
+   page?: string
 
   @ApiPropertyOptional({ description: 'Page size', example: '10' })
-  limit?: string;
+  @IsOptional()
+  @IsString()
+  limit?: string
 }
 
 export class FindOneMessageDto {
