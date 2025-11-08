@@ -1,0 +1,157 @@
+services:
+  reverse-proxy:
+    image: traefik:v3.1
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=sadatbunmohammed@outlook.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--accesslog=true"
+      - "--api.dashboard=true"
+      - "--api=true"  # Needed to enable internal 'api@internal' service
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`mega-traefik.elicitlabs.link`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=myresolver"
+      - "traefik.http.routers.traefik.service=api@internal"
+      # - "traefik.http.routers.traefik.middlewares=auth"
+      # - "traefik.http.middlewares.auth.basicauth.users=admin:$apr1$VClJ2z09$TnUxv2xoX3DUqdbUEIvoZ/"
+      - "traefik.http.routers.traefik.middlewares=whitelist"
+      - "traefik.http.middlewares.whitelist.ipwhitelist.sourcerange=203.0.113.42/32,196.61.35.194/32"
+
+  watchtower:
+    image: containrrr/watchtower
+    command:
+      - "--label-enable"
+      - "--interval"
+      - "30"
+      - "--rolling-restart"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /home/ubuntu/.docker/config.json:/config.json
+    environment:
+      - DOCKER_CONFIG=/
+    
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:8.2-m01-alpine
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    ports:
+      - "6339:6379"
+    restart: always
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  megervoice-api:
+    image: reg-aml.esoko.com/deveops-test.img/megavoice-api:prod
+    restart: always
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      SUPABASE_SERVICE_ROLE_KEY: "${POSTGRES_PASSWORD}"
+      SUPABASE_URL: "https://vbcpnjlzpfcqqfdyilzs.supabase.co"
+      JWT_SECRET: "a4"
+      REDIS_HOST: "localhost"
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD_FILE: /run/secrets/redis-password
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.megervoice-api.rule=Host(`megavoice.elicitlabs.link`)"
+      - "traefik.http.routers.megervoice-api.entrypoints=websecure"
+      - "traefik.http.routers.megervoice-api.tls.certresolver=myresolver"
+      - "com.centurylinklabs.watchtower.enable=true"
+    secrets:
+      - redis-password
+    depends_on:
+      - db
+      - redis
+
+  hypertension_consumer:
+    image: reg-aml.esoko.com/deveops-test.img/hypertension_consumer:latest
+    restart: always
+    environment:
+      # DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      # SUPABASE_SERVICE_ROLE_KEY: "${POSTGRES_PASSWORD}"
+      # SUPABASE_URL: "https://vbcpnjlzpfcqqfdyilzs.supabase.co"
+      # JWT_SECRET: "a4"
+      REDIS_HOST: "localhost"
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD_FILE: /run/secrets/redis-password
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.hypertension_consumer.rule=Host(`hypertension-consumer.elicitlabs.link`)"
+      - "traefik.http.routers.hypertension_consumer.entrypoints=websecure"
+      - "traefik.http.routers.hypertension_consumer.tls.certresolver=myresolver"
+      - "com.centurylinklabs.watchtower.enable=true"
+    secrets:
+      - redis-password
+    depends_on:
+      - db
+      - redis
+
+  hypertension:
+    image: reg-aml.esoko.com/deveops-test.img/hypertension:latest
+    restart: always
+    environment:
+      HOST: db
+      PORT: 5432
+      DATABASE: hypertension_db
+      USER: hypertension_db
+      PASSWORD: POSTGRES_DB
+
+      # DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      # SUPABASE_SERVICE_ROLE_KEY: "${POSTGRES_PASSWORD}"
+      # SUPABASE_URL: "https://vbcpnjlzpfcqqfdyilzs.supabase.co"
+      # JWT_SECRET: "a4"
+      # REDIS_HOST: "localhost"
+      # REDIS_PORT: "6379"
+      # REDIS_PASSWORD_FILE: /run/secrets/redis-password
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.hypertension.rule=Host(`hypertension.elicitlabs.link`)"
+      - "traefik.http.routers.hypertension.entrypoints=websecure"
+      - "traefik.http.routers.hypertension.tls.certresolver=myresolver"
+      - "com.centurylinklabs.watchtower.enable=true"
+    secrets:
+      - redis-password
+    depends_on:
+      - db
+      - redis
+
+
+secrets:
+  postgres-password:
+    file: ./db/postgres-password.txt
+  redis-password:
+    file: ./redis/redis-password.txt
+
+volumes:
+  postgres-data:
+  redis-data:
+  letsencrypt:
+
+
